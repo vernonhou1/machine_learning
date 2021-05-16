@@ -40,13 +40,43 @@ class LinearSeperableSVM(object):
         result = solvers.qp(P, q, G, h)
         return result['x']
 
-    @staticmethod
+    def fit(self) -> List:
+        column = len(self.df['x'])
+        whole = []
+        for i in range(column):
+            tmp = []
+            for j in range(column):
+                tmp.append(self.df['label'][i] *
+                           self.df['label'][j] *
+                           (np.array([self.df['x'][i],
+                                      self.df['y'][i]])
+                            @ np.array([self.df['x'][j],
+                                        self.df['y'][j]])))
+            whole.append(tmp)
+        print(whole)
+        whole = np.array(whole)
+        s = np.diag(whole)
+        P = matrix(whole, (column, column), 'd')
+        q = np.full((column, 1), -1)
+        q = matrix(q, (column, 1), 'd')
+        G = np.zeros((column, column))
+        row, col = np.diag_indices_from(G)
+        G[row, col] = -1
+        G = matrix(G, (column, column), 'd')
+        h = np.full((column, 1), 0)
+        h = matrix(h, (column, 1), 'd')
+        b = matrix([0.0])
+        A = matrix(self.df['label'], (1, column), 'd')
+        sol = solvers.qp(P, q, G, h, A, b)
+        return sol['x']
+
+    @ staticmethod
     def predict(data: list, model: List) -> int:
         end = data[0]*model[0]+data[0]*model[1]-model[2]
         print(end)
         return 1 if end > 6.5 else -1
 
-    @staticmethod
+    @ staticmethod
     def predict_csv_visualization(file: str, model: List) -> None:
         df = pd.read_csv(file)
         sns.set()
@@ -62,6 +92,8 @@ class LinearSeperableSVM(object):
 if __name__ == "__main__":
     svm = LinearSeperableSVM("SVM/data.csv")
     # svm.data_visualise()
-    model = svm.max_margin_method()
-    print(model)
-    LinearSeperableSVM.predict_csv_visualization("SVM/data.csv", model)
+    # model = svm.max_margin_method()
+    # print(model)
+    # LinearSeperableSVM.predict_csv_visualization("SVM/data.csv", model)
+    model_1 = svm.fit()
+    print(model_1)
