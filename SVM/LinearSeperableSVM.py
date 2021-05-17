@@ -5,23 +5,12 @@ from typing import List, Tuple
 import seaborn as sns
 import matplotlib.pyplot as plt
 from cvxopt import matrix, solvers
+from SVM import SVM
 
 
-class LinearSeperableSVM(object):
+class LinearSeperableSVM(SVM):
     def __init__(self, file: str) -> None:
-        super().__init__()
-        self.df = pd.read_csv(file)
-
-    def data_visualise(self) -> None:
-        sns.set()
-        color_dic = {'1': 'r', '-1': 'b'}
-        for i in range(0, len(self.df)):
-            plt.plot(self.df['x'][i],
-                     self.df['y'][i],
-                     'o',
-                     color=color_dic[f"{self.df['label'][i]}"])
-        plt.show()
-        return None
+        SVM.__init__(self, file)
 
     def max_margin_method(self) -> List:
         column = len(self.df['x'])
@@ -53,7 +42,6 @@ class LinearSeperableSVM(object):
                             @ np.array([self.df['x'][j],
                                         self.df['y'][j]])))
             whole.append(tmp)
-        print(whole)
         whole = np.array(whole)
         s = np.diag(whole)
         P = matrix(whole, (column, column), 'd')
@@ -68,13 +56,24 @@ class LinearSeperableSVM(object):
         b = matrix([0.0])
         A = matrix(self.df['label'], (1, column), 'd')
         sol = solvers.qp(P, q, G, h, A, b)
-        return sol['x']
+
+        w = 0
+        b_right = 0
+        for i in range(column):
+            w += sol['x'][i]*self.df['label'][i] * \
+                np.matrix(self.df['x'][i], self.df['y'][i])
+            b_right += sol['x'][i]*self.df['label'][i] * \
+                (np.mat(self.df['x'][i], self.df['y'][i]).transpose() @
+                 np.mat(self.df['x'][0], self.df['y'][0]))
+        b = self.df['label'][0] - b_right
+
+        return [w.getA()[0], b.getA()[0]]
 
     @ staticmethod
     def predict(data: list, model: List) -> int:
-        end = data[0]*model[0]+data[0]*model[1]-model[2]
+        end = data[0]*model[0]+data[0]*model[0]-model[1]
         print(end)
-        return 1 if end > 6.5 else -1
+        return end
 
     @ staticmethod
     def predict_csv_visualization(file: str, model: List) -> None:
@@ -85,15 +84,16 @@ class LinearSeperableSVM(object):
             plt.plot(df['x'][i],
                      df['y'][i],
                      'o',
-                     color=color_dic[f"{LinearSeperableSVM.predict([df['x'][i],df['y'][i]], model)}"])
+                     color=color_dic[f"{df['label'][i]}"])
+        aa = [0, 10]
+        bb = [0*model[0]+model[1], 10*model[0]+model[1]]
+        print(aa, bb)
+        plt.plot(aa, bb, c="orange")
         plt.show()
 
 
 if __name__ == "__main__":
     svm = LinearSeperableSVM("SVM/data.csv")
-    # svm.data_visualise()
-    # model = svm.max_margin_method()
-    # print(model)
-    # LinearSeperableSVM.predict_csv_visualization("SVM/data.csv", model)
     model_1 = svm.fit()
     print(model_1)
+    svm.predict_csv_visualization("SVM/data.csv", model_1)
