@@ -25,6 +25,5 @@ class SVM(object):
 
     @ staticmethod
     def predict(data: list, model: List) -> int:
-        end = data[0]*model[0]+data[0]*model[1]-model[2]
-        print(end)
-        return 1 if end > 6.5 else -1
+        end = data[0]*model[0]+data[0]*model[0]-model[1]
+        return end
