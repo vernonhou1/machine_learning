@@ -2,26 +2,29 @@ import os
 import pandas as pd
 import numpy as np
 from typing import List, Tuple
-import random
+import seaborn as sns
+import matplotlib.pyplot as plt
+from cvxopt import matrix, solvers
 
 
 class SVM(object):
-    def __init__(self, file) -> None:
+    def __init__(self, file: str) -> None:
         super().__init__()
         self.df = pd.read_csv(file)
 
-    def __select_jrand(self, i: int, m: int) -> int:
-        j = i
-        while (j == i):
-            j = int(random.uniform(0, m))
-        return j
+    def data_visualise(self) -> None:
+        sns.set()
+        color_dic = {'1': 'r', '-1': 'b'}
+        for i in range(0, len(self.df)):
+            plt.plot(self.df['x'][i],
+                     self.df['y'][i],
+                     'o',
+                     color=color_dic[f"{self.df['label'][i]}"])
+        plt.show()
+        return None
 
-    def __clipAlpha(self, aj: float, H: float, L: float) -> float:
-        if aj > H:
-            aj = H
-        if L > aj:
-            aj = L
-        return aj
-
-    def simple_SMO(self, C: int, toler: float, maxIter: int) -> None:
-        pass
+    @ staticmethod
+    def predict(data: list, model: List) -> int:
+        end = data[0]*model[0]+data[0]*model[1]-model[2]
+        print(end)
+        return 1 if end > 6.5 else -1
