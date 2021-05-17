@@ -75,22 +75,6 @@ class LinearSeperableSVM(SVM):
         print(end)
         return end
 
-    @ staticmethod
-    def predict_csv_visualization(file: str, model: List) -> None:
-        df = pd.read_csv(file)
-        sns.set()
-        color_dic = {'1': 'r', '-1': 'b'}
-        for i in range(0, len(df)):
-            plt.plot(df['x'][i],
-                     df['y'][i],
-                     'o',
-                     color=color_dic[f"{df['label'][i]}"])
-        aa = [0, 10]
-        bb = [0*model[0]+model[1], 10*model[0]+model[1]]
-        print(aa, bb)
-        plt.plot(aa, bb, c="orange")
-        plt.show()
-
 
 if __name__ == "__main__":
     svm = LinearSeperableSVM("SVM/data.csv")
