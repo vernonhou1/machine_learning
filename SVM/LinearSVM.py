@@ -5,13 +5,13 @@ from typing import List, Tuple
 import seaborn as sns
 import matplotlib.pyplot as plt
 from cvxopt import matrix, solvers
-from SVM import SVM
+from SVM_INIT import SVM_INIT
 
 
-class LinearSVM(SVM):
+class LinearSVM(SVM_INIT):
 
     def __init__(self, file: str, C: float) -> None:
-        SVM.__init__(self, file)
+        SVM_INIT.__init__(self, file)
         self.c = C
 
     def fit(self) -> List:
